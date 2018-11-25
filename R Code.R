@@ -4047,4 +4047,13 @@ cluster_select = function(data,y,name, var_cols,melt_col,max_clusters = 15, ...)
   }
 } 
 
+library(dplyr)
+mydata <- mtcars
+ 
+# Remove duplicate rows of the dataframe using carb variable
+distinct(mydata,carb,vs, .keep_all= TRUE) 
+
+
+
+
 
