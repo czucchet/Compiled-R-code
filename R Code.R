@@ -4047,4 +4047,23 @@ cluster_select = function(data,y,name, var_cols,melt_col,max_clusters = 15, ...)
   }
 } 
 
+dat2 <- map(files_reduce, ~read_csv(.x));names(dat2) <- gsub("\\.csv", "", files_reduce)
+gsub("\\.csv", "", files_reduce)
 
+load_files = function(file_ext,filter_file_1=NULL,filter_file_2=NULL ){
+   library(purrr);library(readr)
+   file_type = paste0(".", "csv","$");files <- list.files(pattern = ".csv$")
+   if(!is.null(filter_file_1)){
+      files =  files[which(files != list.files(pattern = filter_file_1))]
+   }
+   if(!is.null(filter_file_2)){
+      files = files[which(files != list.files(pattern = filter_file_2))]
+   }
+   data_all = map(files, ~read.csv(.x)); names(data_all) = gsub("\\.csv", "", files_reduce)
+   data_all <<- data_all
+}  
+load_files(".csv", "hist");for(i in 1:length(data_all)){
+   df_i = data_all[[i]]
+   assign(names(data_all)[i], df_i)
+   rm(df_i)
+}
