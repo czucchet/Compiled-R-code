@@ -4067,3 +4067,20 @@ load_files(".csv", "hist");for(i in 1:length(data_all)){
    assign(names(data_all)[i], df_i)
    rm(df_i)
 }
+
+
+con = dbConnect(SQLite(), "Football_Records.sqlite")
+db_check = try(dbGetQuery(con, "SELECT Player FROM Fixture_Detail"),silent = TRUE)
+if(class(db_check) == "try-error"){
+   dbWriteTable(con, "Fixture_Detail", fixture,overwrite = T)
+}
+if(class(db_check) != "try-error"){
+   dbWriteTable(con, "Fixture_Detail", fixture,append = T)      
+}
+db_clean = try(dbGetQuery(con, "SELECT * FROM Fixture_Detail"),silent = TRUE)
+if(class(db_clean) != "try-error"){
+   all_records_temp =  dbGetQuery(con, "SELECT * FROM Fixture_Detail")
+   all_records = unique(all_records_temp)
+   dbWriteTable(con, "Fixture_Detail", all_records,overwrite = T)
+}
+
