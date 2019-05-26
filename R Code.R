@@ -2121,8 +2121,8 @@ qtr_df$top_80 = ifelse(qtr_df$percentile >= 0.8,1,0)
 
 
 library(sparklyr);library(dplyr)
-Sys.setenv(JAVA_HOME='C:\\Program Files\\Java\\jdk1.8.0_45') # For sendmailR
-java_path <- normalizePath('C:/Program Files/Java/jdk1.8.0_131')
+Sys.setenv(JAVA_HOME='C:\\Program Files\\Java\\jdk1.8.0_202') # For sendmailR
+java_path <- normalizePath('C:/Program Files/Java/jdk1.8.0_202')
 Sys.setenv(JAVA_HOME=java_path)
 sc <- spark_connect(master = "local")
 
@@ -4083,4 +4083,65 @@ if(class(db_clean) != "try-error"){
    all_records = unique(all_records_temp)
    dbWriteTable(con, "Fixture_Detail", all_records,overwrite = T)
 }
+
+#remove special characters from strings
+str_replace_all(str_replace_all(game$Player, "[\r\n\t]" , ""), "[[:punct:]]", "")
+gsub('[0-9]+', '',str_replace_all(str_replace_all(col_1, "[\r\n\t]" , ""), "[[:punct:]]", "")) 
+
+
+h2o
+library(h2o);h2o.init()
+iris_hex <- as.h2o(iris)
+test <- h2o.automl(y = "Species", training_frame = iris_hex, max_runtime_secs = 10)
+test <- h2o.automl(y = "Species", training_frame = iris_hex, max_runtime_secs = 100)
+
+#accuracy                 0.97333336 0.017638342  0.96666664          1.0  0.96666664 0.93333334         1.0
+res =  test@leaderboard
+head(res,10)
+tail(res,10)
+as.vector(res[1])
+library(MASS)
+boston_hex <- as.h2o(Boston)
+bos_test <- h2o.automl(y = "medv", training_frame = boston_hex, max_runtime_secs = 100)
+
+?h2o.predict
+
+library(purrr)
+ls_years =  nrow(df_years) %>% 
+   rerun(data.frame(matrix(NA, nrow(data_t1),ncol(data_t1)))) %>% 
+   map(~set_names(.x,names(data_t1)))
+
+player_stats = function(data, years, start,end){
+   data_t1 = data %>% filter(as.numeric(Season) >= start & as.numeric(Season) <= end)
+   n_seasons = as.numeric(sort(unique(data_t1$Season)))
+   
+   df_years_t = data.frame(matrix(NA, length(n_seasons), years)); names(df_years_t) = paste0("year_", 1:years)
+   for(i in 1:nrow(df_years_t)){
+      years_filt = n_seasons[i:(i+years-1)]
+      df_years_t[i,] = years_filt 
+   }
+   df_years <<- df_years_t %>% na.omit()
+   years_min = as.vector(apply(df_years,1,min));years_max = as.vector(apply(df_years,1,max))
+   
+   ls_years =  nrow(df_years) %>% 
+      rerun(data.frame(matrix(NA, nrow(data_t1),ncol(data_t1)))) %>% 
+      map(~set_names(.x,names(data_t1)))
+   
+   for(i in 1:length(ls_years)){
+      ls_years[[i]] = data_t1 %>% filter(Season >= years_min[i] & Season <= years_max[i])
+      ls_years[[i]] = ls_years[[i]] %>% 
+         mutate(team_ID = paste0(sapply(strsplit(Player_Key,"_",fixed = T), `[`, 1),"_", sapply(strsplit(Player_Key,"_",fixed = T), `[`, 3)),
+                season_ID = max(Season)) %>%
+         group_by(Player_Name,season_ID) %>%
+         summarise(n_teams = length(unique(team_ID)),
+                   sum_mins = sum(mins),sum_pl_mins = sum(pl_mins),
+                   sum_goals = sum(goals),sum_pl_goals = sum(pl_goals),
+                   avg_diff_leagues = mean(diff_leagues),mins_pl_ratio = round(sum(pl_mins)/sum(mins),2),goals_pl_ratio = round(sum(pl_goals)/sum(goals),2)
+         ) %>% data.frame();ls_years[[i]][is.na(ls_years[[i]])] <- 0
+   }
+   all_years <<- bind_rows(ls_years)
+}
+
+
+
 
