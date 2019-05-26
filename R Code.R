@@ -4047,6 +4047,7 @@ cluster_select = function(data,y,name, var_cols,melt_col,max_clusters = 15, ...)
   }
 } 
 
+<<<<<<< HEAD
 dat2 <- map(files_reduce, ~read_csv(.x));names(dat2) <- gsub("\\.csv", "", files_reduce)
 gsub("\\.csv", "", files_reduce)
 
@@ -4141,6 +4142,14 @@ player_stats = function(data, years, start,end){
    }
    all_years <<- bind_rows(ls_years)
 }
+=======
+library(dplyr)
+mydata <- mtcars
+ 
+# Remove duplicate rows of the dataframe using carb variable
+distinct(mydata,carb,vs, .keep_all= TRUE) 
+
+>>>>>>> ca14753ab97d55e0a1cbd4e3399e1a1bdaa2c1b4
 
 
 
