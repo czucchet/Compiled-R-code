@@ -4152,5 +4152,15 @@ distinct(mydata,carb,vs, .keep_all= TRUE)
 >>>>>>> ca14753ab97d55e0a1cbd4e3399e1a1bdaa2c1b4
 
 
+games_t2 = games %>% split(.$team_year)
+for(i in 1:length(games_t2)){
+  games_t2[[i]]$points           = ifelse(games_t2[[i]]$Diff < 0,0,  ifelse(games_t2[[i]]$Diff > 0, 4,2))
+  games_t2[[i]]$cum_points       = cumsum(games_t2[[i]]$points);games_t2[[i]]$last_rd_points   = lag(games_t2[[i]]$cum_points , 1)
+}
+games_t3 = games_t2 %>% bind_rows() %>% select(-points, -cum_points) %>%  left_join(Teams_States);games_t3[is.na(games_t3)] <- 0 
+head(games_t3)
+
+
+
 
 
