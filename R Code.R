@@ -4161,6 +4161,25 @@ games_t3 = games_t2 %>% bind_rows() %>% select(-points, -cum_points) %>%  left_j
 head(games_t3)
 
 
+## Log in ##
+bqr_auth("rixiye2076@relumyx.com")
+project = "publicdatasets2021"
+dataset = "publicdata"
+billing = "publicdatasets2021"
+## Connect ##
+bq_conn <-  dbConnect(bigquery(), 
+                      project = project,
+                      dataset = dataset)
+## Download ##
+Top10Rows = tbl(bq_conn, "PostCodes") %>% head()
+
+sql_query = "SELECT * FROM `publicdatasets2021.publicdata.PostCodes` limit 20;"
+TestQuery = bq_project_query(project, sql_query)
+TestDF    = bq_table_download(TestQuery)
+
+### Upload ###
+TempTable = bq_table(project = project,  dataset = dataset,table = "SampleTable")
+bq_table_upload(TempTable, DataFrame)
 
 
 
