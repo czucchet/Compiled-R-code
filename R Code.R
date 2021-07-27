@@ -4183,3 +4183,43 @@ bq_table_upload(TempTable, DataFrame)
 
 
 
+## GCS w r
+#https://bookdown.org/hegghammer/interacting_with_google_storage_in_r/interacting_with_google_storage.html
+library(tidyverse); library(readr);library(bigrquery);library(charlatan);library(googleCloudStorageR)
+bq_auth(email = "christopher.zucchet@gmail.com")
+bqr_auth("christopher.zucchet@gmail.com");project = "publicdatasets2021";dataset = "publicdata";billing = "publicdatasets2021"
+usethis::edit_r_environ()
+
+my_project_id <- "analyticsprojects2021"
+gcs_list_buckets(my_project_id)
+gcs_global_bucket("footballdata2021")
+gcs_get_bucket()
+
+# upload files to gcs
+write.csv(mtcars, "mtcars.csv")
+gcs_upload("mtcars.csv", bucket = "footballdata2021",
+           predefinedAcl = "bucketLevel")
+
+
+# download files
+cars = gcs_get_object("mtcars.csv")
+
+
+#delete files
+gcs_delete_object("mtcars.csv")
+
+
+gcs_list_objects()
+
+
+
+
+
+
+
+
+
+
+
+
+
